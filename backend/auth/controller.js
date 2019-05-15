@@ -21,10 +21,10 @@ const signup = async (req, res) => {
     if (userq) return res.json({ authCode: authCodes.EMAIL_EXISTS })
     req.body.password = sha1(req.body.password)
     var nuser = new User(req.body)
-    await nuser.save(er => {console.log(er);return res.json({ authCode: authCodes.DB_ERROR })})
-    var token = new Token({ _id: nuser.id })
-    await token.save()
-    return { authCode: authCodes.SIGNUP_OK, token }
+    await nuser.save(er => {if (er){console.log(er);return res.json({ authCode: authCodes.DB_ERROR })}})
+    var token = new Token({ user: nuser.id })
+    await token.save(er => {if (er){console.log(er);return res.json({ authCode: authCodes.DB_ERROR })}})
+    res.json({ authCode: authCodes.SIGNUP_OK, token })
 }
 
 const login = async (req, res) => {

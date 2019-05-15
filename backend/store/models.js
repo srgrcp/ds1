@@ -29,5 +29,6 @@ const Ejemplar = new Schema({
 
 module.exports =
 {
-    Libro: mongoose.model('Libro', Libro)
+    Libro: mongoose.model('Libro', Libro),
+    Ejemplar: mongoose.model('Ejemplar', Ejemplar)
 }

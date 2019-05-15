@@ -8,7 +8,7 @@ const User = new Schema({
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     carrito: { type: Array, default: [] },
-    domicilio: String
+    address: String
 })
 
 const Token = new Schema({
