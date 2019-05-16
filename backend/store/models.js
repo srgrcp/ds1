@@ -8,14 +8,15 @@ const Review = new Schema({
 }, { _id: false })
 
 const Libro = new Schema({
-    titulo: { type: String, required: true },
+    titulo: { type: String, required: true, unique: true },
     year: Number,
-    autor: { type: [String], required: true },
-    editorial: { type: String, required: true },
+    autor: [String],
+    editorial: String,
     categoria: { type: Number, required: true },
     foto: { type: String, default: 'default.jpg' },
     review: { type: [Review], default: [] },
-    isbn: String
+    isbn: String,
+    description: String
 })
 
 const Ejemplar = new Schema({
@@ -50,9 +51,21 @@ const categorias =
     OTROS: { title: 'Otros temas / Varios', id: 18 }
 }
 
+const storeCodes =
+{
+    NOT_LOOGEDIN = 0,
+    NO_TITLE = 1,
+    NO_CATEGORIA = 2,
+    TITLE_EXISTS = 3,
+    ISBN_EXISTS = 4,
+    ADDED_OK = 5,
+    DB_ERROR = 6
+}
+
 module.exports =
 {
     Libro: mongoose.model('Libro', Libro),
     Ejemplar: mongoose.model('Ejemplar', Ejemplar),
-    categorias
+    categorias,
+    storeCodes
 }

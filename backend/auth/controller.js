@@ -27,7 +27,7 @@ const signup = async (req, res) => {
     await nuser.save(er => {if (er){console.log(er);return res.json({ authCode: authCodes.DB_ERROR })}})
     var token = new Token({ user: nuser.id })
     await token.save(er => {if (er){console.log(er);return res.json({ authCode: authCodes.DB_ERROR })}})
-    res.json({ authCode: authCodes.SIGNUP_OK, token })
+    res.json({ authCode: authCodes.SIGNUP_OK, token: token.id })
 }
 
 const login = async (req, res) => {
@@ -44,16 +44,18 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
     if (getUser(req)) {
-        await Token.findByIdAndDelete(req.headers.authorization.split(' ')[1])
+        await Token.findByIdAndDelete(req.body.token || req.headers.authorization.split(' ')[1])
         res.json({ authCode: authCodes.LOGOUT_OK })
     }
     else res.json({ authCode: authCodes.LOGOUT_ERROR })
 }
 
 //  Verificar que existe el token
-const checkToken = (req, res) => {
-    user = getUser(req)
-    if (user) res.json({ authCode: authCodes.LOGGEDIN, username: user.username })
+const checkToken = async (req, res) => {
+    console.log(req.body)
+    user = await getUser(req)
+    console.log(user)
+    if (user) res.json({ authCode: authCodes.LOGGEDIN, user })
     else res.json({ authCode: authCodes.NOT_LOGGEDIN })
 }
 
@@ -96,5 +98,6 @@ module.exports =
     login,
     logout,
     checkToken,
-    updateUser
+    updateUser,
+    getUser
 }
