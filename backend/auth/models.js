@@ -15,10 +15,8 @@ const User = new Schema({
 const Token = new Schema({
     _id: { type: String, default: uuid },
     user: { type: ObjectId, required: true },
-    updated: { type: Date, default: Date.now }
+    updated: { type: Date, default: Date.now, expires: 86400 }
 })
-
-Token.index({ updated: 1 }, { expires: 86400 })
 
 const authCodes = Object.freeze({
     SIGNUP_OK: 0,
@@ -33,7 +31,8 @@ const authCodes = Object.freeze({
     NOT_LOGGEDIN: 9,
     LOGGEDIN: 10,
     LOGIN_ERROR: 11,
-    LOGIN_OK: 12
+    LOGIN_OK: 12,
+    USER_UPDATED_OK: 13
 })
 
 module.exports =

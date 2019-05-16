@@ -1,14 +1,15 @@
 const { authCodes, User, Token } = require('./models')
 const sha1 = require('js-sha1')
+const Resize = require('./../resize')
 
 //  Get user from token
 const getUser = async (req) =>{
-    if(req.headers.authorization){
-        tok = req.headers.authorization.split(' ')[1]
+    if(req.headers.authorization || req.body.token){
+        tok = req.body.token || req.headers.authorization.split(' ')[1]
         var token = await Token.findById(tok)
         if (!token) return undefined
-        token.updated = Date.now
-        token.save()
+        token.updated = Date.now()
+        await token.save()
         return User.findById(token.user)
     }
     return undefined
@@ -37,7 +38,8 @@ const login = async (req, res) => {
         return res.json({ authCode: authCodes.WRONG_PASSWORD })
     let token = new Token({ user: user.id })
     await token.save()
-    res.json({ authCode: authCodes.LOGIN_OK, token: token.id })
+    us = { username: user.username, email: user.email, avatar: user.avatar, address: user.address }
+    res.json({ authCode: authCodes.LOGIN_OK, token: token.id, user: us })
 }
 
 const logout = async (req, res) => {
@@ -55,9 +57,37 @@ const checkToken = (req, res) => {
     else res.json({ authCode: authCodes.NOT_LOGGEDIN })
 }
 
-const updateUser = (req, res) => {
-    user = getUser(req)
-    //  TODO
+const updateUser =  async (req, res) => {
+    user = await getUser(req)
+    if (!user) return res.json({ authCode: authCodes.NOT_LOGGEDIN })
+    udtUser = req.body
+    if (udtUser.id != String(user.id)) return res.json({ authCode: authCodes.WRONG_USER })
+    var username
+    if (!udtUser.username) username = user.username
+    else 
+    {
+        username = udtUser.username
+        userq = await User.findOne({ username })
+        if (userq && userq.id != user.id) return res.json({ authCode: authCodes.USER_EXISTS })
+    }
+    error = false
+    if (udtUser.password) udtUser.password = sha1(udtUser.password)
+    if (req.file){
+        const imagePath = path.join(__dirname.substr(0, __dirname.length-5), '/dist/avatar')
+        const fileUpload = new Resize(imagePath)
+        udtUser.avatar = await fileUpload.save(req.file.buffer, username)
+    }
+    console.log(udtUser)
+    await User.updateOne({ username: user.username }, udtUser, er => {
+        if (er){
+            console.log(er)
+            res.json({ authCode: authCodes.DB_ERROR })
+            error = true
+        }
+    })
+    if (error) return
+    udtUser = await User.findById(user.id)
+    res.json({ authCode: authCodes.USER_UPDATED_OK, user: { username: udtUser.username, email: udtUser.email, avatar: udtUser.avatar, address: udtUser.address } })
 }
 
 module.exports =
@@ -65,5 +95,6 @@ module.exports =
     signup,
     login,
     logout,
-    checkToken
+    checkToken,
+    updateUser
 }
