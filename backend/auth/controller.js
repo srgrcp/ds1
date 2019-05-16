@@ -7,6 +7,8 @@ const getUser = async (req) =>{
         tok = req.headers.authorization.split(' ')[1]
         var token = await Token.findById(tok)
         if (!token) return undefined
+        token.updated = Date.now
+        token.save()
         return User.findById(token.user)
     }
     return undefined
@@ -51,6 +53,11 @@ const checkToken = (req, res) => {
     user = getUser(req)
     if (user) res.json({ authCode: authCodes.LOGGEDIN, username: user.username })
     else res.json({ authCode: authCodes.NOT_LOGGEDIN })
+}
+
+const updateUser = (req, res) => {
+    user = getUser(req)
+    //  TODO
 }
 
 module.exports =

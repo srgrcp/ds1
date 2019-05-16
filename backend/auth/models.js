@@ -7,6 +7,7 @@ const User = new Schema({
     username: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    avatar: { type: String, default: 'avatar.png' },
     carrito: { type: Array, default: [] },
     address: String
 })
@@ -14,10 +15,10 @@ const User = new Schema({
 const Token = new Schema({
     _id: { type: String, default: uuid },
     user: { type: ObjectId, required: true },
-    created: { type: Date, default: Date.now }
+    updated: { type: Date, default: Date.now }
 })
 
-Token.index({ created: 1 }, { expires: 86400 })
+Token.index({ updated: 1 }, { expires: 86400 })
 
 const authCodes = Object.freeze({
     SIGNUP_OK: 0,
