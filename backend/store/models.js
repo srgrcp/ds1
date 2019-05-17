@@ -60,7 +60,9 @@ const storeCodes =
     ISBN_EXISTS: 4,
     ADDED_OK: 5,
     DB_ERROR: 6,
-    UPDATED_OK: 7
+    UPDATED_OK: 7,
+    AUTH_ERROR: 8,
+    DELETED_OK: 9
 }
 
 module.exports =
