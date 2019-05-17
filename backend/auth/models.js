@@ -1,15 +1,22 @@
 const uuid = require('uuid/v4')
 const mongoose = require('mongoose')
+const { EjemplarSchema } = require('./../store/models')
 const Schema = mongoose.Schema
 const ObjectId = Schema.Types.ObjectId
+
+const Compra = new Schema({
+    ejemplar: { type: EjemplarSchema, required: true },
+    cantidad: { type: Number, default: 1 }
+})
 
 const User = new Schema({
     username: { type: String, unique: true, required: true },
     email: { type: String, unique: true, required: true },
     password: { type: String, required: true },
     avatar: { type: String, default: 'avatar.png' },
-    carrito: { type: Array, default: [] },
-    address: String
+    carrito: { type: [Compra], default: [] },
+    address: String,
+    compras: { type: [Compra], default: [] }
 })
 
 const Token = new Schema({
